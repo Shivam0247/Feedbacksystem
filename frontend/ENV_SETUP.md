@@ -8,6 +8,17 @@ The frontend is configured to use the deployed backend URL by default.
 
 The backend API URL is set to: `https://feedbacksystem-xy3i.onrender.com/api`
 
+### For Vercel Deployment (IMPORTANT!)
+
+When deploying to Vercel, you **MUST** set the environment variable:
+
+1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables
+2. Add: `VITE_API_URL` = `https://feedbacksystem-xy3i.onrender.com/api`
+3. Select all environments (Production, Preview, Development)
+4. **Redeploy** your application
+
+See `VERCEL_DEPLOYMENT.md` for detailed instructions.
+
 ### Option 1: Using Environment Variable (Recommended)
 
 Create a `.env` file in the `frontend` directory:
@@ -48,4 +59,12 @@ VITE_API_URL=http://localhost:4000/api
 ### Verify Configuration
 
 You can verify the API URL is being used correctly by checking the browser's Network tab in Developer Tools. All API requests should go to `https://feedbacksystem-xy3i.onrender.com/api`.
+
+### Troubleshooting 405 Error on Vercel
+
+If you get `405 Method Not Allowed`:
+1. Check that `VITE_API_URL` is set in Vercel environment variables
+2. Make sure the value is: `https://feedbacksystem-xy3i.onrender.com/api` (with `/api`)
+3. Redeploy after setting the variable
+4. Check browser console for the actual API URL being used
 
