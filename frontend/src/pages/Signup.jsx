@@ -30,14 +30,16 @@ const Signup = () => {
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6 text-center">
-            <div className="inline-block w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white">Create Account</h2>
+              <p className="text-indigo-100 mt-2">Join FeedbackHub today</p>
             </div>
-            <h2 className="text-2xl font-bold text-white">Create Account</h2>
-            <p className="text-indigo-100 mt-2">Join FeedbackHub today</p>
           </div>
 
           {/* Form */}
@@ -144,7 +146,7 @@ const Signup = () => {
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}
-                <Link to="/login" className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+                <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
                   Sign in
                 </Link>
               </p>

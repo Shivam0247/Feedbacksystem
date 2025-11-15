@@ -31,14 +31,16 @@ const Login = () => {
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6 text-center">
-            <div className="inline-block w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white">Welcome Back</h2>
+              <p className="text-indigo-100 mt-2">Sign in to your account</p>
             </div>
-            <h2 className="text-2xl font-bold text-white">Welcome Back</h2>
-            <p className="text-indigo-100 mt-2">Sign in to your account</p>
           </div>
 
           {/* Form */}
