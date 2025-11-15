@@ -3,6 +3,33 @@ import { Link } from 'react-router-dom';
 import { getStats, updateFeedbackStatus, deleteAnyFeedback } from '../api/admin';
 import { getFeedbacks } from '../api/feedback';
 import { getCategories } from '../api/category';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Doughnut, Bar, Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -85,6 +112,133 @@ const AdminDashboard = () => {
     return styles[status] || styles['Open'];
   };
 
+  // Chart data preparation
+  const statusChartData = stats?.statusCounts ? {
+    labels: stats.statusCounts.map(item => item._id),
+    datasets: [{
+      label: 'Feedback Status',
+      data: stats.statusCounts.map(item => item.count),
+      backgroundColor: [
+        'rgba(59, 130, 246, 0.8)',    // Blue for Open
+        'rgba(234, 179, 8, 0.8)',      // Yellow for In-progress
+        'rgba(34, 197, 94, 0.8)',     // Green for Completed
+        'rgba(239, 68, 68, 0.8)'      // Red for Rejected
+      ],
+      borderColor: [
+        'rgba(59, 130, 246, 1)',
+        'rgba(234, 179, 8, 1)',
+        'rgba(34, 197, 94, 1)',
+        'rgba(239, 68, 68, 1)'
+      ],
+      borderWidth: 2,
+      hoverOffset: 4
+    }]
+  } : null;
+
+  const categoryChartData = stats?.categoryUsage ? {
+    labels: stats.categoryUsage.map(item => item.categoryName),
+    datasets: [{
+      label: 'Number of Feedback',
+      data: stats.categoryUsage.map(item => item.count),
+      backgroundColor: [
+        'rgba(99, 102, 241, 0.8)',
+        'rgba(139, 92, 246, 0.8)',
+        'rgba(236, 72, 153, 0.8)',
+        'rgba(59, 130, 246, 0.8)',
+        'rgba(34, 197, 94, 0.8)',
+        'rgba(234, 179, 8, 0.8)',
+        'rgba(249, 115, 22, 0.8)'
+      ],
+      borderColor: [
+        'rgba(99, 102, 241, 1)',
+        'rgba(139, 92, 246, 1)',
+        'rgba(236, 72, 153, 1)',
+        'rgba(59, 130, 246, 1)',
+        'rgba(34, 197, 94, 1)',
+        'rgba(234, 179, 8, 1)',
+        'rgba(249, 115, 22, 1)'
+      ],
+      borderWidth: 2
+    }]
+  } : null;
+
+  const ratingChartData = stats?.ratingDistribution ? {
+    labels: stats.ratingDistribution.map(item => `${item._id} Star${item._id > 1 ? 's' : ''}`),
+    datasets: [{
+      label: 'Number of Feedback',
+      data: stats.ratingDistribution.map(item => item.count),
+      backgroundColor: 'rgba(234, 179, 8, 0.8)',
+      borderColor: 'rgba(234, 179, 8, 1)',
+      borderWidth: 2
+    }]
+  } : null;
+
+  const feedbackOverTimeData = stats?.feedbackOverTime ? {
+    labels: stats.feedbackOverTime.map(item => {
+      const date = new Date(item._id);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }),
+    datasets: [{
+      label: 'Feedback Submitted',
+      data: stats.feedbackOverTime.map(item => item.count),
+      borderColor: 'rgba(99, 102, 241, 1)',
+      backgroundColor: 'rgba(99, 102, 241, 0.1)',
+      borderWidth: 3,
+      fill: true,
+      tension: 0.4,
+      pointRadius: 5,
+      pointHoverRadius: 7,
+      pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2
+    }]
+  } : null;
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: {
+            size: 12,
+            weight: '600'
+          },
+          padding: 15
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        titleFont: {
+          size: 14,
+          weight: 'bold'
+        },
+        bodyFont: {
+          size: 13
+        }
+      }
+    }
+  };
+
+  const doughnutOptions = {
+    ...chartOptions,
+    plugins: {
+      ...chartOptions.plugins,
+      legend: {
+        position: 'bottom',
+        labels: {
+          font: {
+            size: 12,
+            weight: '600'
+          },
+          padding: 15
+        }
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8 px-4">
       <div className="container mx-auto max-w-7xl">
@@ -146,53 +300,68 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Status Breakdown */}
-        {stats?.statusCounts && stats.statusCounts.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              Status Breakdown
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {stats.statusCounts.map((item) => (
-                <div key={item._id} className="text-center p-4 bg-gray-50 rounded-xl border border-gray-200">
-                  <p className="text-3xl font-bold text-gray-900 mb-1">{item.count}</p>
-                  <p className={`text-sm font-semibold px-3 py-1 rounded-full inline-block ${getStatusBadge(item._id)}`}>
-                    {item._id}
-                  </p>
+        {/* Charts Grid */}
+        {stats && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Status Distribution - Doughnut Chart */}
+            {statusChartData && (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Status Distribution
+                </h2>
+                <div className="h-64">
+                  <Doughnut data={statusChartData} options={doughnutOptions} />
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              </div>
+            )}
 
-        {/* Category Usage */}
-        {stats?.categoryUsage && stats.categoryUsage.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-              </svg>
-              Category Usage
-            </h2>
-            <div className="space-y-3">
-              {stats.categoryUsage.map((item) => (
-                <div key={item._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
-                  <span className="font-semibold text-gray-900">{item.categoryName}</span>
-                  <div className="flex items-center gap-3">
-                    <div className="w-32 bg-gray-200 rounded-full h-2.5">
-                      <div 
-                        className="bg-gradient-to-r from-indigo-500 to-purple-600 h-2.5 rounded-full" 
-                        style={{ width: `${(item.count / stats.totalFeedback) * 100}%` }}
-                      ></div>
-                    </div>
-                    <span className="font-bold text-indigo-600 min-w-[60px] text-right">{item.count} feedbacks</span>
-                  </div>
+            {/* Rating Distribution - Bar Chart */}
+            {ratingChartData && (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  Rating Distribution
+                </h2>
+                <div className="h-64">
+                  <Bar data={ratingChartData} options={chartOptions} />
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {/* Category Usage - Bar Chart */}
+            {categoryChartData && (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                  Category Usage
+                </h2>
+                <div className="h-64">
+                  <Bar data={categoryChartData} options={chartOptions} />
+                </div>
+              </div>
+            )}
+
+            {/* Feedback Over Time - Line Chart */}
+            {feedbackOverTimeData && (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Feedback Over Time (Last 7 Days)
+                </h2>
+                <div className="h-64">
+                  <Line data={feedbackOverTimeData} options={chartOptions} />
+                </div>
+              </div>
+            )}
           </div>
         )}
 

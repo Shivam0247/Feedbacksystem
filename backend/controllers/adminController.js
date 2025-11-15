@@ -100,13 +100,51 @@ export const getStats = async (req, res) => {
       }
     ]);
 
+    // Rating distribution
+    const ratingDistribution = await Feedback.aggregate([
+      {
+        $group: {
+          _id: '$rating',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
+    // Feedback over time (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const feedbackOverTime = await Feedback.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sevenDaysAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
     res.json({
       totalUsers,
       totalFeedback,
       avgRating: Math.round(avgRating * 10) / 10,
       categoryCount,
       statusCounts,
-      categoryUsage
+      categoryUsage,
+      ratingDistribution,
+      feedbackOverTime
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

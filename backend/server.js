@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 // Connect to MongoDB
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://shivampatel3650:Shivam.mongo.%40%40@rmscluster.rp33wwc.mongodb.net/feedback-system?retryWrites=true&w=majority&appName=RMSCluster');
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB connected');
   } catch (error) {
     console.error('MongoDB connection error:', error);
